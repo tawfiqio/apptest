@@ -33,11 +33,23 @@ def analyze_accent(audio_path):
         result = model.transcribe(audio_path)
         text = result["text"]
         
-        # Mock accent classification (Replace with trained model for better accuracy)
-        accent = "American" if "r" in text else "British"
-        confidence = 85 if accent == "American" else 75
+        # Simple accent classification (Replace with AI model for better accuracy)
+        american_keywords = ["r", "er", "ar"]
+        british_keywords = ["ah", "o", "ou"]
+
+        american_count = sum(text.lower().count(k) for k in american_keywords)
+        british_count = sum(text.lower().count(k) for k in british_keywords)
+
+        if american_count > british_count:
+            accent = "American"
+            confidence = min(100, (american_count / (american_count + british_count)) * 100)
+        else:
+            accent = "British"
+            confidence = min(100, (british_count / (american_count + british_count)) * 100)
+
+        summary = f"The accent has strong {'r' if accent == 'American' else 'ah'} sounds, common in {accent} English."
         
-        return accent, confidence, text
+        return accent, confidence, summary
     except Exception as e:
         st.error(f"Error analyzing audio: {e}")
         return None, None, None
@@ -45,7 +57,7 @@ def analyze_accent(audio_path):
 # Streamlit UI
 def main():
     st.title("English Accent Detection Tool")
-    url = st.text_input("Enter video URL (YouTube or MP4):")
+    url = st.text_input("Enter video URL (YouTube, Loom, MP4):")
 
     if st.button("Analyze"):
         if not url:
@@ -67,8 +79,8 @@ def main():
         
         if accent:
             st.write(f"**Detected Accent:** {accent}")
-            st.write(f"**Confidence Score:** {confidence}%")
-            st.write(f"**Transcription:** {summary}")
+            st.write(f"**Confidence Score:** {confidence:.2f}%")
+            st.write(f"**Summary:** {summary}")
 
 if __name__ == "__main__":
     main()
