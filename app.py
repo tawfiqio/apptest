@@ -3,8 +3,8 @@ import subprocess
 import whisper
 import streamlit as st
 
-# Ensure ffmpeg is installed
-FFMPEG_PATH = "ffmpeg"  # Update this path if necessary
+# Define ffmpeg path (adjust for deployment)
+FFMPEG_PATH = "ffmpeg"  
 
 # Function to download video
 def download_video(url, output="video.mp4"):
@@ -13,10 +13,10 @@ def download_video(url, output="video.mp4"):
         subprocess.run(command, shell=True, check=True)
         return output
     except subprocess.CalledProcessError:
-        st.error("Error downloading the video. Please check the URL or try a different video.")
+        st.error("Error downloading video. Please check the URL and try again.")
         return None
 
-# Extract audio using ffmpeg
+# Extract audio from video
 def extract_audio(video_path, output="audio.wav"):
     try:
         command = f'{FFMPEG_PATH} -i {video_path} -vn -acodec pcm_s16le -ar 16000 {output}'
@@ -32,8 +32,8 @@ def analyze_accent(audio_path):
         model = whisper.load_model("small")
         result = model.transcribe(audio_path)
         text = result["text"]
-        
-        # Simple accent classification (Replace with AI model for better accuracy)
+
+        # Basic accent classification logic (can be improved with AI models)
         american_keywords = ["r", "er", "ar"]
         british_keywords = ["ah", "o", "ou"]
 
@@ -47,8 +47,7 @@ def analyze_accent(audio_path):
             accent = "British"
             confidence = min(100, (british_count / (american_count + british_count)) * 100)
 
-        summary = f"The accent has strong {'r' if accent == 'American' else 'ah'} sounds, common in {accent} English."
-        
+        summary = f"The detected accent has strong {'r' if accent == 'American' else 'ah'} sounds, common in {accent} English."
         return accent, confidence, summary
     except Exception as e:
         st.error(f"Error analyzing audio: {e}")
@@ -61,7 +60,7 @@ def main():
 
     if st.button("Analyze"):
         if not url:
-            st.error("Please provide a valid video URL.")
+            st.error("Please enter a valid video URL.")
             return
 
         st.write("Downloading video...")
