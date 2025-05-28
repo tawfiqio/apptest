@@ -1,6 +1,5 @@
 import os
 import subprocess
-import requests
 import whisper
 import streamlit as st
 
@@ -22,7 +21,7 @@ def analyze_accent(audio_path):
     result = model.transcribe(audio_path)
     text = result["text"]
     
-    # (Mock Classification - Replace with proper model)
+    # (Mock Classification - Replace with a trained model)
     accent = "American" if "r" in text else "British"
     confidence = 85 if accent == "American" else 75
     
@@ -34,11 +33,14 @@ def main():
     url = st.text_input("Enter video URL:")
     
     if st.button("Analyze"):
+        st.write("Downloading video...")
         video_path = download_video(url)
+        st.write("Extracting audio...")
         audio_path = extract_audio(video_path)
+        st.write("Analyzing accent...")
         accent, confidence, summary = analyze_accent(audio_path)
         
-        st.write(f"**Accent:** {accent}")
+        st.write(f"**Detected Accent:** {accent}")
         st.write(f"**Confidence Score:** {confidence}%")
         st.write(f"**Transcription:** {summary}")
 
