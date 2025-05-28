@@ -1,0 +1,46 @@
+import os
+import subprocess
+import requests
+import whisper
+import streamlit as st
+
+# Function to download video
+def download_video(url, output="video.mp4"):
+    command = f'yt-dlp -f bestvideo+bestaudio --merge-output-format mp4 -o {output} "{url}"'
+    subprocess.run(command, shell=True)
+    return output
+
+# Extract audio using ffmpeg
+def extract_audio(video_path, output="audio.wav"):
+    command = f'ffmpeg -i {video_path} -vn -acodec pcm_s16le -ar 16000 {output}'
+    subprocess.run(command, shell=True)
+    return output
+
+# Transcribe and analyze accent
+def analyze_accent(audio_path):
+    model = whisper.load_model("base")
+    result = model.transcribe(audio_path)
+    text = result["text"]
+    
+    # (Mock Classification - Replace with proper model)
+    accent = "American" if "r" in text else "British"
+    confidence = 85 if accent == "American" else 75
+    
+    return accent, confidence, text
+
+# Streamlit UI
+def main():
+    st.title("Accent Detector Tool")
+    url = st.text_input("Enter video URL:")
+    
+    if st.button("Analyze"):
+        video_path = download_video(url)
+        audio_path = extract_audio(video_path)
+        accent, confidence, summary = analyze_accent(audio_path)
+        
+        st.write(f"**Accent:** {accent}")
+        st.write(f"**Confidence Score:** {confidence}%")
+        st.write(f"**Transcription:** {summary}")
+
+if __name__ == "__main__":
+    main()
