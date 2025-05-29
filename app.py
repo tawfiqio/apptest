@@ -1,8 +1,6 @@
 import os
 import subprocess
 import whisper
-import streamlit as st
-
 # Define ffmpeg path (adjust for deployment)
 FFMPEG_PATH = "ffmpeg"  
 
